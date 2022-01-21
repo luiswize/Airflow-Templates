@@ -3,7 +3,11 @@ from airflow import DAG
 from datetime import datetime
 # from airflow.operators.postgres_operator import PostgresOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
+from airflow.operators.python import PythonOperator
 
+def yeah():
+    print('yeah this is cool')
+    
 # raw_data = pd.read_csv('https://storage.googleapis.com/resources_data_eng_app04/user_purchase.csv')
 with DAG(
     dag_id="postgres_operator_dag",
@@ -27,3 +31,9 @@ with DAG(
         ); 
         """
     )
+    t2 = PythonOperator(
+        task_id='yeah',
+        python_callable=yeah
+    )
+    
+    create_user_purchase_table >> t2
