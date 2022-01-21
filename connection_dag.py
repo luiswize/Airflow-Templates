@@ -7,7 +7,7 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 # raw_data = pd.read_csv('https://storage.googleapis.com/resources_data_eng_app04/user_purchase.csv')
 with DAG(
     dag_id="postgres_operator_dag",
-    start_date=datetime.datetime(2020, 2, 2),
+    start_date=datetime(2020, 2, 2),
     schedule_interval="@once",
     catchup=False,
 ) as dag:
