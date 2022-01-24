@@ -11,6 +11,7 @@ INSTANCE_NAME2 = os.environ.get('GCSQL_MYSQL_INSTANCE_NAME2', 'test-mysql2')
 DB_NAME = os.environ.get('GCSQL_MYSQL_DATABASE_NAME', 'testdb')
 
 def info():
+    print('____________________________________')
     print(GCP_PROJECT_ID, INSTANCE_NAME, INSTANCE_NAME2, DB_NAME)
     
 dag = DAG('INFO-LOG', description='Hello World DAG',
