@@ -16,7 +16,7 @@ import_body = {"importContext": {
     "importUser": 'dbuser'
     }}
 
-with DAG(dag_id="postgres_operator_dag", start_date=datetime(2021, 1, 1),
+with DAG(dag_id="import_data", start_date=datetime(2021, 1, 1),
     schedule_interval="@once", catchup=False) as dag:
     
     sql_import_task = CloudSQLImportInstanceOperator(
