@@ -12,7 +12,14 @@ DB_NAME = os.environ.get('GCSQL_MYSQL_DATABASE_NAME', 'testdb')
 
 def info():
     print('____________________________________')
-    print(GCP_PROJECT_ID, INSTANCE_NAME, INSTANCE_NAME2, DB_NAME)
+    print('GCP_PROJECT_ID' + str(GCP_PROJECT_ID) )
+    print('____________________________________')
+    print('GCP_PROJECT_ID' + str(INSTANCE_NAME))
+    print('____________________________________')
+    print('GCP_PROJECT_ID' + str(INSTANCE_NAME2))
+    print('____________________________________')
+    print('GCP_PROJECT_ID' + str(DB_NAME))
+    print('____________________________________')
     
 dag = DAG('INFO-LOG', description='Hello World DAG',
               schedule_interval='0 12 * * *',
