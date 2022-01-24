@@ -51,3 +51,4 @@ with DAG("test",
     )
 
     training_model_tasks >> choosing_best_model >> [accurate, inaccurate]
+    
