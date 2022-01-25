@@ -23,7 +23,7 @@ with DAG(dag_id="import_data", start_date=datetime(2021, 1, 1),
         task_id='sql_import_task',
         project_id='gcp-data-eng-appr04-cee96a91',
         body = import_body,
-        instance='sql-milestone-6',
+        instance='sql-milestone-7',
         gcp_conn_id='my_gcp_connection'
     )
 
