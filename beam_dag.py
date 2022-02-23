@@ -44,7 +44,7 @@ with DAG("apche_beam",
         py_file='gs://codes-gcp-data-eng-appr04-cee96a91/movies_review.py',
         pipeline_options={
             'stagingLocation': 'gs://raw-layer-gcp-data-eng-appr04-cee96a91',
-            'output': 'gs://raw-layer-gcp-data-eng-appr04-cee96a91',
+            'output': 'gs://staging-layer-gcp-data-eng-appr04-cee96a91',
         },
         py_options=[],
         py_requirements=['apache-beam[gcp]==2.26.0'],
@@ -58,7 +58,7 @@ with DAG("apche_beam",
         py_file='gs://codes-gcp-data-eng-appr04-cee96a91/log_reviews.py',
         pipeline_options={
             'stagingLocation': 'gs://raw-layer-gcp-data-eng-appr04-cee96a91',
-            'output': 'gs://raw-layer-gcp-data-eng-appr04-cee96a91',
+            'output': 'gs://staging-layer-gcp-data-eng-appr04-cee96a91',
         },
         py_options=[],
         py_requirements=['apache-beam[gcp]==2.26.0'],
@@ -67,3 +67,8 @@ with DAG("apche_beam",
     )
 
     t1 >> [movies_pipeline_dataflow_runner , logs_review_pipeline_dataflow_runner]
+
+
+
+
+
