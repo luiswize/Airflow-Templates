@@ -54,3 +54,5 @@ with DAG("spark_jobs",
         task_id="delete_cluster", project_id='gcp-data-eng-appr04-cee96a91', region = 'us-west1', 
             cluster_name='movies_review' # ,gcp_conn_id = ''
     )
+    
+    create_movies_cluster >> pyspark_movies_task >> delete_movies_cluster
