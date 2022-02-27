@@ -24,7 +24,7 @@ CLUSTER_CONFIG = {
 
 PYSPARK_JOB = {
     "reference": {"project_id": 'gcp-data-eng-appr04-cee96a91'},
-    "placement": {"cluster_name": 'movies_review'},
+    "placement": {"cluster_name": 'movies-review'},
     "pyspark_job": {"main_python_file_uri": 'gs://codes-gcp-data-eng-appr04-cee96a91/spark_movie_review.py',
                     "fileUris": ['gs://raw-layer-gcp-data-eng-appr04-cee96a91/movie_review.csv']},
 }
@@ -39,20 +39,20 @@ with DAG("spark_jobs",
         task_id="create_movies_cluster",
         project_id='gcp-data-eng-appr04-cee96a91',
         cluster_config=CLUSTER_CONFIG,
-        cluster_name='movies_review',
+        cluster_name='movies-review',
         region = 'us-west1',
         use_if_exists = True
         # gcp_conn_id = ''
     )
 
     pyspark_movies_task = DataprocSubmitJobOperator(
-        task_id="pyspark_task", job=PYSPARK_JOB, project_id='gcp-data-eng-appr04-cee96a91',
+        task_id="pyspark-task", job=PYSPARK_JOB, project_id='gcp-data-eng-appr04-cee96a91',
             region = 'us-west1' #,gcp_conn_id = ''
     )
 
     delete_movies_cluster = DataprocDeleteClusterOperator(
         task_id="delete_cluster", project_id='gcp-data-eng-appr04-cee96a91', region = 'us-west1', 
-            cluster_name='movies_review' # ,gcp_conn_id = ''
+            cluster_name='movies-review' # ,gcp_conn_id = ''
     )
-    
+
     create_movies_cluster >> pyspark_movies_task >> delete_movies_cluster
