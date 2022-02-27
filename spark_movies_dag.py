@@ -25,7 +25,7 @@ CLUSTER_CONFIG = {
 PYSPARK_JOB = {
     "reference": {"project_id": 'gcp-data-eng-appr04-cee96a91'},
     "placement": {"cluster_name": 'movies_review'},
-    "pyspark_job": {"main_python_file_uri": 'gs://codes-gcp-data-eng-appr04-cee96a91/spark_movie_review.py,
+    "pyspark_job": {"main_python_file_uri": 'gs://codes-gcp-data-eng-appr04-cee96a91/spark_movie_review.py',
                     "fileUris": ['gs://raw-layer-gcp-data-eng-appr04-cee96a91/movie_review.csv']},
 }
 
