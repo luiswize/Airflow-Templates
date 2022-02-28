@@ -93,4 +93,4 @@ with DAG("spark_jobs",
         gcp_conn_id = 'google_cloud_default'
     )
 
-    create_movies_cluster >> create_log_cluster >> [pyspark_movies_task, pyspark_logs_task] >> [delete_movies_cluster, delete_logs_cluster]
+    create_movies_cluster >> create_log_cluster >> [pyspark_movies_task, pyspark_logs_task] >> delete_movies_cluster >> delete_logs_cluster
