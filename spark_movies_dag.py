@@ -41,18 +41,18 @@ with DAG("spark_jobs",
         cluster_config=CLUSTER_CONFIG,
         cluster_name='movies-review',
         region = 'us-west1',
-        use_if_exists = True
-        # gcp_conn_id = ''
+        use_if_exists = True,
+        gcp_conn_id = 'google_cloud_default'
     )
 
     pyspark_movies_task = DataprocSubmitJobOperator(
         task_id="pyspark-task", job=PYSPARK_JOB, project_id='gcp-data-eng-appr04-cee96a91',
-            region = 'us-west1' #,gcp_conn_id = ''
+            region = 'us-west1' ,gcp_conn_id = 'google_cloud_default'
     )
 
     delete_movies_cluster = DataprocDeleteClusterOperator(
         task_id="delete_cluster", project_id='gcp-data-eng-appr04-cee96a91', region = 'us-west1', 
-            cluster_name='movies-review' # ,gcp_conn_id = ''
+            cluster_name='movies-review' ,gcp_conn_id = 'google_cloud_default'
     )
 
     create_movies_cluster >> pyspark_movies_task >> delete_movies_cluster
