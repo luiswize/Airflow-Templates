@@ -51,7 +51,7 @@ with DAG("spark_jobs",
     )
 
     upload_movies = LocalFilesystemToGCSOperator(
-        task_id = 'upload_log_csv',
+        task_id = 'upload_reviews_csv',
         src = '/Users/luis.morales/Desktop/Test-env/raw/movie_review.csv',
         dst = 'gs://raw-layer-gcp-data-eng-appr04-cee96a91/',
         bucket = 'raw-layer-gcp-data-eng-appr04-cee96a91',
