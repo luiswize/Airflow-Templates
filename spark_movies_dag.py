@@ -132,6 +132,4 @@ with DAG("spark_jobs",
         cluster_name='logs-review' ,
         gcp_conn_id = 'google_cloud_default'
     )
-
-    upload_logs >> upload_movies >> [upload_logs_code, upload_movies_code] >> create_movies_cluster >> create_log_cluster >> [pyspark_movies_task, pyspark_logs_task] \
-        >> delete_movies_cluster >> delete_logs_cluster
+    create_movies_cluster >> create_log_cluster >> [pyspark_movies_task, pyspark_logs_task] >> delete_movies_cluster >> delete_logs_cluster
