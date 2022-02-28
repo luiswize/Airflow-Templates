@@ -40,41 +40,6 @@ with DAG("spark_jobs",
     schedule_interval='@once', 
     catchup=False  # Catchup  
     ) as dag:
-
-    #-----------------UPLOAD FILES TO GCP------------------
-    upload_logs = LocalFilesystemToGCSOperator(
-        task_id = 'upload_log_csv',
-        src = '/Users/luis.morales/Desktop/Test-env/raw/log_reviews.csv',
-        dst = 'gs://raw-layer-gcp-data-eng-appr04-cee96a91/',
-        bucket = 'raw-layer-gcp-data-eng-appr04-cee96a91',
-        gcp_conn_id = 'google_cloud_storage'
-    )
-
-    upload_movies = LocalFilesystemToGCSOperator(
-        task_id = 'upload_reviews_csv',
-        src = '/Users/luis.morales/Desktop/Test-env/raw/movie_review.csv',
-        dst = 'gs://raw-layer-gcp-data-eng-appr04-cee96a91/',
-        bucket = 'raw-layer-gcp-data-eng-appr04-cee96a91',
-        gcp_conn_id = 'google_cloud_storage'
-    )
-
-        #-----------------UPLOAD CODES TO GCP------------------
-    upload_logs_code = LocalFilesystemToGCSOperator(
-        task_id = 'upload_spark_log_Reviews.py',
-        src = '/Users/luis.morales/Desktop/Test-env/Spark_log_reviews.py',
-        dst = 'gs://codes-gcp-data-eng-appr04-cee96a91/',
-        bucket = 'codes-gcp-data-eng-appr04-cee96a91',
-        gcp_conn_id = 'google_cloud_storage'
-    )
-
-    upload_movies_code = LocalFilesystemToGCSOperator(
-        task_id = 'upload_spark_movie_review.py',
-        src = '/Users/luis.morales/Desktop/Test-env/spark_movie_review.py',
-        dst = 'gs://codes-gcp-data-eng-appr04-cee96a91/',
-        bucket = 'codes-gcp-data-eng-appr04-cee96a91',
-        gcp_conn_id = 'google_cloud_storage'
-    )
-    
     #-----------------CREATES CLUSTERS IN DATAPROC------------------
 
     create_movies_cluster = DataprocCreateClusterOperator(
