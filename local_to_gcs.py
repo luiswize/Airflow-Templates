@@ -12,7 +12,7 @@ with DAG("prework",
     upload_logs = LocalFilesystemToGCSOperator(
         task_id = 'upload_log_csv',
         src = '/Users/luis.morales/Documents/La_Salle/Budget.xlsx',
-        dst = 'gs://raw-layer-gcp-data-eng-appr04-cee96a91/',
+        dst = 'gs://raw-layer-gcp-data-eng-appr04-cee96a91',
         bucket = 'raw-layer-gcp-data-eng-appr04-cee96a91',
         gcp_conn_id = 'google_cloud_storage'
     )
