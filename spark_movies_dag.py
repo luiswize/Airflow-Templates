@@ -6,6 +6,7 @@ from airflow.models import BaseOperator
 from airflow.providers.google.cloud.operators.dataproc import DataprocCreateClusterOperator \
                         ,DataprocDeleteClusterOperator \
                         ,DataprocSubmitJobOperator
+from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
 
 
 
@@ -40,6 +41,42 @@ with DAG("spark_jobs",
     catchup=False  # Catchup  
     ) as dag:
 
+    #-----------------UPLOAD FILES TO GCP------------------
+    upload_logs = LocalFilesystemToGCSOperator(
+        task_id = 'upload_log_csv',
+        src = '/Users/luis.morales/Desktop/Test-env/raw/log_reviews.csv',
+        dst = 'gs://raw-layer-gcp-data-eng-appr04-cee96a91/',
+        bucket = 'raw-layer-gcp-data-eng-appr04-cee96a91',
+        gcp_conn_id = 'google_cloud_storage'
+    )
+
+    upload_movies = LocalFilesystemToGCSOperator(
+        task_id = 'upload_log_csv',
+        src = '/Users/luis.morales/Desktop/Test-env/raw/movie_review.csv',
+        dst = 'gs://raw-layer-gcp-data-eng-appr04-cee96a91/',
+        bucket = 'raw-layer-gcp-data-eng-appr04-cee96a91',
+        gcp_conn_id = 'google_cloud_storage'
+    )
+
+        #-----------------UPLOAD CODES TO GCP------------------
+    upload_logs_code = LocalFilesystemToGCSOperator(
+        task_id = 'upload_spark_log_Reviews.py',
+        src = '/Users/luis.morales/Desktop/Test-env/Spark_log_reviews.py',
+        dst = 'gs://codes-gcp-data-eng-appr04-cee96a91/',
+        bucket = 'codes-gcp-data-eng-appr04-cee96a91',
+        gcp_conn_id = 'google_cloud_storage'
+    )
+
+    upload_movies_code = LocalFilesystemToGCSOperator(
+        task_id = 'upload_spark_movie_review.py',
+        src = '/Users/luis.morales/Desktop/Test-env/spark_movie_review.py',
+        dst = 'gs://codes-gcp-data-eng-appr04-cee96a91/',
+        bucket = 'codes-gcp-data-eng-appr04-cee96a91',
+        gcp_conn_id = 'google_cloud_storage'
+    )
+    
+    #-----------------CREATES CLUSTERS IN DATAPROC------------------
+
     create_movies_cluster = DataprocCreateClusterOperator(
         task_id="create_movies_cluster",
         project_id='gcp-data-eng-appr04-cee96a91',
@@ -60,6 +97,8 @@ with DAG("spark_jobs",
         gcp_conn_id = 'google_cloud_default'
     )
 
+    #-----------------SUBMIT DATAPROC JOBS------------------
+
     pyspark_movies_task = DataprocSubmitJobOperator(
         task_id="pysparkt_movies_task", 
         job = PYSPARK_MOVIES_JOB, 
@@ -76,6 +115,7 @@ with DAG("spark_jobs",
         gcp_conn_id = 'google_cloud_default'
     )
 
+    #-----------------DESTROY CLUSTERS------------------
 
     delete_movies_cluster = DataprocDeleteClusterOperator(
         task_id="delete_movies_cluster", 
@@ -93,4 +133,5 @@ with DAG("spark_jobs",
         gcp_conn_id = 'google_cloud_default'
     )
 
-    create_movies_cluster >> create_log_cluster >> [pyspark_movies_task, pyspark_logs_task] >> delete_movies_cluster >> delete_logs_cluster
+    upload_logs >> upload_movies >> [upload_logs_code, upload_movies_code] >> create_movies_cluster >> create_log_cluster >> [pyspark_movies_task, pyspark_logs_task] \
+        >> delete_movies_cluster >> delete_logs_cluster
