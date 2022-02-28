@@ -19,7 +19,7 @@ CLUSTER_CONFIG = {
         "num_instances": 2,
         "machine_type_uri": "n1-standard-4",
         "disk_config": {"boot_disk_type": "pd-standard", "boot_disk_size_gb": 1024},
-    },
+    }
 }
 
 PYSPARK_MOVIES_JOB = {
@@ -61,7 +61,8 @@ with DAG("spark_jobs",
     )
 
     pyspark_movies_task = DataprocSubmitJobOperator(
-        task_id="pysparkt_movies_task", job = PYSPARK_MOVIES_JOB, 
+        task_id="pysparkt_movies_task", 
+        job = PYSPARK_MOVIES_JOB, 
         project_id='gcp-data-eng-appr04-cee96a91',
         region = 'us-west1' ,
         gcp_conn_id = 'google_cloud_default'
@@ -92,4 +93,4 @@ with DAG("spark_jobs",
         gcp_conn_id = 'google_cloud_default'
     )
 
-    [create_movies_cluster, create_log_cluster] >> [pyspark_movies_task, pyspark_logs_task] >> [delete_movies_cluster, delete_logs_cluster]
+    create_movies_cluster >> create_log_cluster >> [pyspark_movies_task, pyspark_logs_task] >> [delete_movies_cluster, delete_logs_cluster]
