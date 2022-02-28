@@ -78,7 +78,7 @@ with DAG("spark_jobs",
 
 
     delete_movies_cluster = DataprocDeleteClusterOperator(
-        task_id="delete_cluster", 
+        task_id="delete_movies_cluster", 
         project_id='gcp-data-eng-appr04-cee96a91', 
         region = 'us-west1', 
         cluster_name='movies-review' ,
@@ -86,7 +86,7 @@ with DAG("spark_jobs",
     )
     
     delete_logs_cluster = DataprocDeleteClusterOperator(
-        task_id="delete_cluster", 
+        task_id="delete_logs_cluster", 
         project_id='gcp-data-eng-appr04-cee96a91', 
         region = 'us-west1', 
         cluster_name='logs-review' ,
