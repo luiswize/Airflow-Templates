@@ -22,10 +22,16 @@ CLUSTER_CONFIG = {
     },
 }
 
-PYSPARK_JOB = {
+PYSPARK_MOVIES_JOB = {
     "reference": {"project_id": 'gcp-data-eng-appr04-cee96a91'},
     "placement": {"cluster_name": 'movies-review'},
     "pyspark_job": {"main_python_file_uri": 'gs://codes-gcp-data-eng-appr04-cee96a91/spark_movie_review.py'}
+}
+
+PYSPARK_LOGS_JOB = {
+    "reference": {"project_id": 'gcp-data-eng-appr04-cee96a91'},
+    "placement": {"cluster_name": 'logs-review'},
+    "pyspark_job": {"main_python_file_uri": 'gs://codes-gcp-data-eng-appr04-cee96a91/Spark_log_reviews.py'}
 }
 
 with DAG("spark_jobs", 
@@ -44,14 +50,46 @@ with DAG("spark_jobs",
         gcp_conn_id = 'google_cloud_default'
     )
 
-    pyspark_movies_task = DataprocSubmitJobOperator(
-        task_id="pyspark-task", job=PYSPARK_JOB, project_id='gcp-data-eng-appr04-cee96a91',
-            region = 'us-west1' ,gcp_conn_id = 'google_cloud_default'
+    create_log_cluster = DataprocCreateClusterOperator(
+        task_id = "create_logs_cluster",
+        project_id = 'gcp-data-eng-appr04-cee96a91',
+        cluster_config = CLUSTER_CONFIG,
+        cluster_name = 'logs-review',
+        region = 'us-west1',
+        use_if_exists = True,
+        gcp_conn_id = 'google_cloud_default'
     )
+
+    pyspark_movies_task = DataprocSubmitJobOperator(
+        task_id="pysparkt_movies_task", job = PYSPARK_MOVIES_JOB, 
+        project_id='gcp-data-eng-appr04-cee96a91',
+        region = 'us-west1' ,
+        gcp_conn_id = 'google_cloud_default'
+    )
+
+    pyspark_logs_task = DataprocSubmitJobOperator(
+        task_id="pyspark_logs_task", 
+        job = PYSPARK_LOGS_JOB, 
+        project_id='gcp-data-eng-appr04-cee96a91',
+        region = 'us-west1' ,
+        gcp_conn_id = 'google_cloud_default'
+    )
+
 
     delete_movies_cluster = DataprocDeleteClusterOperator(
-        task_id="delete_cluster", project_id='gcp-data-eng-appr04-cee96a91', region = 'us-west1', 
-            cluster_name='movies-review' ,gcp_conn_id = 'google_cloud_default'
+        task_id="delete_cluster", 
+        project_id='gcp-data-eng-appr04-cee96a91', 
+        region = 'us-west1', 
+        cluster_name='movies-review' ,
+        gcp_conn_id = 'google_cloud_default'
+    )
+    
+    delete_logs_cluster = DataprocDeleteClusterOperator(
+        task_id="delete_cluster", 
+        project_id='gcp-data-eng-appr04-cee96a91', 
+        region = 'us-west1', 
+        cluster_name='logs-review' ,
+        gcp_conn_id = 'google_cloud_default'
     )
 
-    create_movies_cluster >> pyspark_movies_task >> delete_movies_cluster
+    [create_movies_cluster, create_log_cluster] >> [pyspark_movies_task, pyspark_logs_task] >> [delete_movies_cluster, delete_logs_cluster]
