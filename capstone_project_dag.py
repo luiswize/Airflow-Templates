@@ -68,14 +68,14 @@ with DAG("spark_jobs",
                          sql="""
                         CREATE SCHEMA staging;
                         CREATE TABLE IF NOT EXISTS staging.user_purchase (    
-                            invoice_number varchar(10),
-                            stock_code varchar(20),
-                            detail varchar(1000),
-                            quantity int,
-                            invoice_date timestamp,
-                            unit_price numeric(8,3),
-                            customer_id int,
-                            country varchar(20)
+                            invoiceNo varchar(10),
+                            StockCode varchar(20),
+                            Description varchar(1000),
+                            Quantity int,
+                            InvoiceDate timestamp,
+                            UnitPrice numeric(8,3),
+                            CustomerID int,
+                            Country varchar(20)
                         );
                             """,
                          postgres_conn_id='postgres_default',
