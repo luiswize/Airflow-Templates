@@ -153,5 +153,14 @@ with DAG("spark_jobs",
         gcp_conn_id = 'google_cloud_default',
         trigger_rule='all_done'
     )
-    create_postgres >> download_gcs_file >> csv_to_database >> create_movies_cluster >> create_log_cluster >> [pyspark_movies_task, pyspark_logs_task]\
-             >> delete_movies_cluster >> delete_logs_cluster
+    
+    (
+        create_postgres >> download_gcs_file >> csv_to_database
+    )
+    (
+        csv_to_database >> create_movies_cluster  >> pyspark_movies_task >> delete_movies_cluster
+             
+    )
+    (
+        csv_to_database >> create_log_cluster >> pyspark_logs_task >> delete_logs_cluster
+    )
