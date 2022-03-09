@@ -66,7 +66,7 @@ with DAG("spark_jobs",
     
     create_postgres = PostgresOperator(task_id='create_postgres_table',
                          sql="""
-                        CREATE SCHEMA staging;
+                        CREATE SCHEMA staging2;
                         CREATE TABLE IF NOT EXISTS staging.user_purchase (    
                             InvoiceNo varchar(10),
                             StockCode varchar(20),
