@@ -68,7 +68,7 @@ with DAG("spark_jobs",
                          sql="""
                         CREATE SCHEMA staging;
                         CREATE TABLE IF NOT EXISTS staging.user_purchase (    
-                            invoiceNo varchar(10),
+                            InvoiceNo varchar(10),
                             StockCode varchar(20),
                             Description varchar(1000),
                             Quantity int,
