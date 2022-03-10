@@ -57,7 +57,7 @@ default_args = {
     'retry_delay': timedelta(minutes=1),
 }
 
-with DAG("spark_jobs", 
+with DAG("capstone_project", 
     start_date=datetime(2021, 1 ,1), 
     schedule_interval='@once', 
     default_args=default_args,
