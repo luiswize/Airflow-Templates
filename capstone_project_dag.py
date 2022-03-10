@@ -17,7 +17,7 @@ def csv_to_postgres():
     get_postgres_conn = pg_hook.get_conn()
     cur = get_postgres_conn.cursor()
     with open("user_purchase.csv", "r") as f:
-        cur.copy_expert("COPY user_purchase FROM STDIN WITH CSV HEADER", f)
+        cur.copy_expert("COPY staging3.user_purchase FROM STDIN WITH CSV HEADER", f)
         get_postgres_conn.commit()
     cur.close()
 
@@ -66,8 +66,8 @@ with DAG("spark_jobs",
     
     create_postgres = PostgresOperator(task_id='create_postgres_table',
                          sql="""
-                        CREATE SCHEMA staging2;
-                        CREATE TABLE IF NOT EXISTS staging.user_purchase (    
+                        CREATE SCHEMA staging3;
+                        CREATE TABLE IF NOT EXISTS staging3.user_purchase (    
                             InvoiceNo varchar(10),
                             StockCode varchar(20),
                             Description varchar(1000),
