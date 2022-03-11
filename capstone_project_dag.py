@@ -65,6 +65,8 @@ with DAG("spark_jobs",
     default_args=default_args,
     catchup=False  # Catchup  
     ) as dag:
+
+    init = DummyOperator(task_id='init')
     # CREATE SCHEMA staging3;
     create_postgres = PostgresOperator(task_id='create_postgres_table',
                          sql="""
@@ -176,5 +178,5 @@ with DAG("spark_jobs",
     #     csv_to_database >> create_log_cluster >> pyspark_logs_task >> delete_logs_cluster
     # )
 
-    chain(create_postgres, download_gcs_file, csv_to_database, [create_movies_cluster, pyspark_movies_task, delete_movies_cluster] \
+    chain(init, create_postgres, download_gcs_file, csv_to_database, [create_movies_cluster, pyspark_movies_task, delete_movies_cluster] \
         ,[create_log_cluster, pyspark_logs_task, delete_logs_cluster], copy_to_staging_layer)
