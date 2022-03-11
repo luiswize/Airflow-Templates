@@ -12,7 +12,7 @@ from airflow.providers.google.cloud.operators.dataproc import DataprocCreateClus
                         ,DataprocSubmitJobOperator
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
 from airflow.providers.google.cloud.transfers.gcs_to_gcs import GCSToGCSOperator
-from airflow.utils.helpers import chain
+
 
 def csv_to_postgres():
     pg_hook = PostgresHook(postgres_conn_id='postgres_default')
@@ -167,16 +167,19 @@ with DAG("spark_jobs",
 
     
     #----------------- STEPS ------------------
-    # (
-    #     create_postgres >> download_gcs_file >> csv_to_database
-    # )
-    # (
-    #     csv_to_database >> create_movies_cluster  >> pyspark_movies_task >> delete_movies_cluster
+    (
+        init >> create_postgres >> download_gcs_file >> csv_to_database
+    )
+    (
+        csv_to_database >> create_movies_cluster  >> pyspark_movies_task >> delete_movies_cluster >> copy_to_staging_layer
              
-    # )
-    # (
-    #     csv_to_database >> create_log_cluster >> pyspark_logs_task >> delete_logs_cluster
-    # )
+    )
+    (
+        csv_to_database >> create_log_cluster >> pyspark_logs_task >> delete_logs_cluster >> copy_to_staging_layer
+    )
+    
 
-    chain(init, create_postgres, download_gcs_file, csv_to_database, [create_movies_cluster, pyspark_movies_task, delete_movies_cluster] \
-        ,[create_log_cluster, pyspark_logs_task, delete_logs_cluster], copy_to_staging_layer)
+
+    # chain(init, create_postgres, download_gcs_file, csv_to_database, [create_movies_cluster, pyspark_movies_task, delete_movies_cluster] \
+    #     ,[create_log_cluster, pyspark_logs_task, delete_logs_cluster], copy_to_staging_layer)
+
