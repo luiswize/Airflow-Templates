@@ -11,6 +11,8 @@ from airflow.providers.google.cloud.operators.dataproc import DataprocCreateClus
                         ,DataprocDeleteClusterOperator \
                         ,DataprocSubmitJobOperator
 from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesystemToGCSOperator
+from airflow.providers.google.cloud.transfers.gcs_to_gcs import GCSToGCSOperator
+from airflow.utils.helpers import chain
 
 def csv_to_postgres():
     pg_hook = PostgresHook(postgres_conn_id='postgres_default')
@@ -57,7 +59,7 @@ default_args = {
     'retry_delay': timedelta(minutes=1),
 }
 
-with DAG("capstone_project", 
+with DAG("spark_jobs", 
     start_date=datetime(2021, 1 ,1), 
     schedule_interval='@once', 
     default_args=default_args,
@@ -152,14 +154,27 @@ with DAG("capstone_project",
         gcp_conn_id = 'google_cloud_default',
         trigger_rule='all_done'
     )
+
+    copy_to_staging_layer = GCSToGCSOperator(
+        task_id="to_staging_layer",
+        source_bucket='data-apprenticeship',
+        source_object="user_purchase.csv",
+        destination_bucket='staging-layer-gcp-data-eng-appr04-cee96a91', 
+        gcp_conn_id='google_cloud_default',
+    )
+
     
-    (
-        create_postgres >> download_gcs_file >> csv_to_database
-    )
-    (
-        csv_to_database >> create_movies_cluster  >> pyspark_movies_task >> delete_movies_cluster
+    #----------------- STEPS ------------------
+    # (
+    #     create_postgres >> download_gcs_file >> csv_to_database
+    # )
+    # (
+    #     csv_to_database >> create_movies_cluster  >> pyspark_movies_task >> delete_movies_cluster
              
-    )
-    (
-        csv_to_database >> create_log_cluster >> pyspark_logs_task >> delete_logs_cluster
-    )
+    # )
+    # (
+    #     csv_to_database >> create_log_cluster >> pyspark_logs_task >> delete_logs_cluster
+    # )
+
+    chain(create_postgres, download_gcs_file, csv_to_database, [create_movies_cluster, pyspark_movies_task, delete_movies_cluster] \
+        ,[create_log_cluster, pyspark_logs_task, delete_logs_cluster], copy_to_staging_layer)
