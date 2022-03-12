@@ -14,6 +14,7 @@ from airflow.providers.google.cloud.transfers.local_to_gcs import LocalFilesyste
 from airflow.providers.google.cloud.transfers.gcs_to_gcs import GCSToGCSOperator
 
 
+
 def csv_to_postgres():
     pg_hook = PostgresHook(postgres_conn_id='postgres_default')
     get_postgres_conn = pg_hook.get_conn()
@@ -22,7 +23,7 @@ def csv_to_postgres():
         cur.copy_expert("COPY user_purchase FROM STDIN WITH CSV HEADER", f)
         get_postgres_conn.commit()
     cur.close()
-
+ 
 CLUSTER_CONFIG = {
     "master_config": {
         "num_instances": 1,
@@ -59,7 +60,7 @@ default_args = {
     'retry_delay': timedelta(minutes=1),
 }
 
-with DAG("spark_jobs", 
+with DAG("capstone_templated", 
     start_date=datetime(2021, 1 ,1), 
     schedule_interval='@once', 
     default_args=default_args,
@@ -81,7 +82,7 @@ with DAG("spark_jobs",
                             Country varchar(20)
                         );
                             """,
-                         postgres_conn_id='postgres_default',
+                         postgres_conn_id = '{{var.postgres_conn_id.val}}',
                          autocommit=True,
             )
 
@@ -89,34 +90,34 @@ with DAG("spark_jobs",
                                      bucket="data-apprenticeship",
                                      object_name="user_purchase.csv",
                                      filename="user_purchase.csv",
-                                     gcp_conn_id="google_cloud_default",
+                                     gcp_conn_id = '{{var.gcp_conn_id.val}}'  #####
                                     )
 
     csv_to_database = PythonOperator(task_id='csv_to_database',
                        provide_context=True,
-                       python_callable=csv_to_postgres,
+                       python_callable=csv_to_postgres,   
                        )
 
     #-----------------CREATES CLUSTERS IN DATAPROC------------------
 
     create_movies_cluster = DataprocCreateClusterOperator(
         task_id="create_movies_cluster",
-        project_id='gcp-data-eng-appr04-cee96a91',
+        project_id='{{ var.project_id.val }}',
         cluster_config=CLUSTER_CONFIG,
-        cluster_name='movies-review',
+        cluster_name='movies-review', ########
         region = 'us-west1',
         use_if_exists = True,
-        gcp_conn_id = 'google_cloud_default'
+        gcp_conn_id = '{{var.gcp_conn_id.val}}'   ########
     )
 
     create_log_cluster = DataprocCreateClusterOperator(
-        task_id = "create_logs_cluster",
-        project_id = 'gcp-data-eng-appr04-cee96a91',
+        task_id = "create_logs_cluster", 
+        project_id = '{{ var.project_id.val }}',
         cluster_config = CLUSTER_CONFIG,
-        cluster_name = 'logs-review',
+        cluster_name = 'logs-review',    ########
         region = 'us-west1',
         use_if_exists = True,
-        gcp_conn_id = 'google_cloud_default'
+        gcp_conn_id = '{{var.gcp_conn_id.val}}'   ########
     )
 
     #-----------------SUBMIT DATAPROC JOBS------------------
@@ -124,36 +125,36 @@ with DAG("spark_jobs",
     pyspark_movies_task = DataprocSubmitJobOperator(
         task_id="pysparkt_movies_task", 
         job = PYSPARK_MOVIES_JOB, 
-        project_id='gcp-data-eng-appr04-cee96a91',
+        project_id='{{ var.project_id.val }}',
         region = 'us-west1' ,
-        gcp_conn_id = 'google_cloud_default'
+        gcp_conn_id = '{{var.gcp_conn_id.val}}'   ######## 
     )
 
     pyspark_logs_task = DataprocSubmitJobOperator(
         task_id="pyspark_logs_task", 
         job = PYSPARK_LOGS_JOB, 
-        project_id='gcp-data-eng-appr04-cee96a91',
+        project_id= '{{ var.project_id.val }}',
         region = 'us-west1' ,
-        gcp_conn_id = 'google_cloud_default'
+        gcp_conn_id = '{{var.gcp_conn_id.val}}'   ########
     )
 
     #-----------------DESTROY CLUSTERS------------------
 
     delete_movies_cluster = DataprocDeleteClusterOperator(
         task_id="delete_movies_cluster", 
-        project_id='gcp-data-eng-appr04-cee96a91', 
+        project_id = '{{ var.project_id.val }}',
         region = 'us-west1', 
         cluster_name='movies-review' ,
-        gcp_conn_id = 'google_cloud_default',
+        gcp_conn_id = '{{var.gcp_conn_id.val}}',    ########
         trigger_rule='all_done'
     )
     
     delete_logs_cluster = DataprocDeleteClusterOperator(
         task_id="delete_logs_cluster", 
-        project_id='gcp-data-eng-appr04-cee96a91', 
+        project_id = '{{ var.project_id.val }}',
         region = 'us-west1', 
         cluster_name='logs-review' ,
-        gcp_conn_id = 'google_cloud_default',
+        gcp_conn_id = '{{var.gcp_conn_id.val}}',   ########
         trigger_rule='all_done'
     )
 
@@ -161,8 +162,8 @@ with DAG("spark_jobs",
         task_id="to_staging_layer",
         source_bucket='data-apprenticeship',
         source_object="user_purchase.csv",
-        destination_bucket='staging-layer-gcp-data-eng-appr04-cee96a91', 
-        gcp_conn_id='google_cloud_default',
+        destination_bucket = '{{var.destination_bucket.val}}', ########
+        gcp_conn_id = '{{var.gcp_conn_id.val}}',
     )
 
     
@@ -179,7 +180,19 @@ with DAG("spark_jobs",
     )
     
 
+'''
 
-    # chain(init, create_postgres, download_gcs_file, csv_to_database, [create_movies_cluster, pyspark_movies_task, delete_movies_cluster] \
-    #     ,[create_log_cluster, pyspark_logs_task, delete_logs_cluster], copy_to_staging_layer)
+    project_id='{{ var.project_id.val }}'
+    postgres_conn_id = '{{var.postgres_conn_id.val}}'
+    gcp_conn_id = '{{var.gcp_conn_id.val}}'
+    destination_bucket = '{{var.destination_bucket.val}}'
+    templates = {
+        'project_id' : 'gcp-data-eng-appr04-cee96a91', ####
+        "cluster_movies_name": 'movies-review',
+        "cluster_logs_name": 'logs-review',
+        'destination_bucket' : 'staging-layer-gcp-data-eng-appr04-cee96a91',
+        'gcp_conn_id' : "google_cloud_default",
+        'postgres_conn_id' : 'postgres_default'
+    }
 
+'''
