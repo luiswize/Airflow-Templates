@@ -92,7 +92,7 @@ with DAG("CapstoneProject",
                                      gcp_conn_id="google_cloud_default",
                                     )
 
-    csv_to_database = PythonOperator(task_id='CSV to Database',
+    csv_to_database = PythonOperator(task_id='CSVtoDatabase',
                        provide_context=True,
                        python_callable=csv_to_postgres,
                        )
@@ -169,7 +169,7 @@ with DAG("CapstoneProject",
 
     analytics_job = DummyOperator(task_id='DataAnalysis')
 
-    terminate = DummyOperator(task_id='DagTerminated')
+    terminate = DummyOperator(task_id='DagTerminatedSuccesfully')
 
     
     #----------------- STEPS ------------------
@@ -186,4 +186,3 @@ with DAG("CapstoneProject",
     (
         cluster_analytics >> analytics_job >> terminate
     )
-    
