@@ -164,11 +164,15 @@ with DAG("CapstoneProject",
         destination_bucket='staging-layer-gcp-data-eng-appr04-cee96a91', 
         gcp_conn_id='google_cloud_default',
     )
-
+    
+    ## Here is supposed to be the creation of the cluster for the deeper analytics jobs. It is part of the next steps.
+    ## Meanwhile I run it In my local
     cluster_analytics = DummyOperator(task_id='CreateClusterForAnalytics')
-
+    
+    ## Here is supposed to be the the deeper analytics job run. It is part of the next steps.
+    ## Meanwhile I run it In my local
     analytics_job = DummyOperator(task_id='DataAnalysis')
-
+    
     terminate = DummyOperator(task_id='DagTerminatedSuccesfully')
 
     
