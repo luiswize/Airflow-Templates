@@ -59,7 +59,7 @@ default_args = {
     'retry_delay': timedelta(minutes=1),
 }
 
-with DAG("Capstone Project", 
+with DAG("CapstoneProject", 
     start_date=datetime(2021, 1 ,1), 
     schedule_interval='@once', 
     default_args=default_args,
@@ -68,7 +68,7 @@ with DAG("Capstone Project",
 
     init = DummyOperator(task_id='init')
     # CREATE SCHEMA staging3;
-    create_postgres = PostgresOperator(task_id='Create Postgres Database',
+    create_postgres = PostgresOperator(task_id='CreatePostgresDatabase',
                          sql="""
                         CREATE TABLE IF NOT EXISTS user_purchase (    
                             InvoiceNo varchar(10),
@@ -85,7 +85,7 @@ with DAG("Capstone Project",
                          autocommit=True,
             )
 
-    download_gcs_file = GCSToLocalFilesystemOperator(task_id="Download CSV",
+    download_gcs_file = GCSToLocalFilesystemOperator(task_id="DownloadCSV",
                                      bucket="data-apprenticeship",
                                      object_name="user_purchase.csv",
                                      filename="user_purchase.csv",
@@ -100,7 +100,7 @@ with DAG("Capstone Project",
     #-----------------CREATES CLUSTERS IN DATAPROC------------------
 
     create_movies_cluster = DataprocCreateClusterOperator(
-        task_id="Create Movies Cluster",
+        task_id="CreateMoviesCluster",
         project_id='gcp-data-eng-appr04-cee96a91',
         cluster_config=CLUSTER_CONFIG,
         cluster_name='movies-review',
@@ -110,7 +110,7 @@ with DAG("Capstone Project",
     )
 
     create_log_cluster = DataprocCreateClusterOperator(
-        task_id = "Create Logs Cluster",
+        task_id = "CreateLogsCluster",
         project_id = 'gcp-data-eng-appr04-cee96a91',
         cluster_config = CLUSTER_CONFIG,
         cluster_name = 'logs-review',
@@ -122,7 +122,7 @@ with DAG("Capstone Project",
     #-----------------SUBMIT DATAPROC JOBS------------------
 
     pyspark_movies_task = DataprocSubmitJobOperator(
-        task_id="Pyspark Movies Task", 
+        task_id="PysparkMoviesTask", 
         job = PYSPARK_MOVIES_JOB, 
         project_id='gcp-data-eng-appr04-cee96a91',
         region = 'us-west1' ,
@@ -130,7 +130,7 @@ with DAG("Capstone Project",
     )
 
     pyspark_logs_task = DataprocSubmitJobOperator(
-        task_id="Pyspark Jobs task", 
+        task_id="PysparkJobsTask", 
         job = PYSPARK_LOGS_JOB, 
         project_id='gcp-data-eng-appr04-cee96a91',
         region = 'us-west1' ,
@@ -140,7 +140,7 @@ with DAG("Capstone Project",
     #-----------------DESTROY CLUSTERS------------------
 
     delete_movies_cluster = DataprocDeleteClusterOperator(
-        task_id="Delete Movies Cluster", 
+        task_id="DeleteMoviesCluster", 
         project_id='gcp-data-eng-appr04-cee96a91', 
         region = 'us-west1', 
         cluster_name='movies-review' ,
@@ -149,7 +149,7 @@ with DAG("Capstone Project",
     )
     
     delete_logs_cluster = DataprocDeleteClusterOperator(
-        task_id="Delete Logs Cluster", 
+        task_id="DeleteLogsCluster", 
         project_id='gcp-data-eng-appr04-cee96a91', 
         region = 'us-west1', 
         cluster_name='logs-review' ,
@@ -158,18 +158,18 @@ with DAG("Capstone Project",
     )
 
     copy_to_staging_layer = GCSToGCSOperator(
-        task_id="To Staging Layer",
+        task_id="ToStagingLayer",
         source_bucket='data-apprenticeship',
         source_object="user_purchase.csv",
         destination_bucket='staging-layer-gcp-data-eng-appr04-cee96a91', 
         gcp_conn_id='google_cloud_default',
     )
 
-    cluster_analytics = DummyOperator(task_id='Create Cluster For Analytics')
+    cluster_analytics = DummyOperator(task_id='CreateClusterForAnalytics')
 
-    analytics_job = DummyOperator(task_id='Data Analysis')
+    analytics_job = DummyOperator(task_id='DataAnalysis')
 
-    terminate = DummyOperator(task_id='Dag Terminated')
+    terminate = DummyOperator(task_id='DagTerminated')
 
     
     #----------------- STEPS ------------------
