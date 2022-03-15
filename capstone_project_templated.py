@@ -165,6 +165,17 @@ with DAG("capstone_templated",
         destination_bucket = '{{var.destination_bucket.val}}', ########
         gcp_conn_id = '{{var.gcp_conn_id.val}}',
     )
+    
+       
+    ## Here is supposed to be the creation of the cluster for the deeper analytics jobs. It is part of the next steps.
+    ## Meanwhile I run it In my local
+    cluster_analytics = DummyOperator(task_id='CreateClusterForAnalytics')
+    
+    ## Here is supposed to be the the deeper analytics job run. It is part of the next steps.
+    ## Meanwhile I run it In my local https://github.com/luiswize/Milestone-Project/blob/main/analytics_jobs.ipynb
+    analytics_job = DummyOperator(task_id='DataAnalysis')
+    
+    terminate = DummyOperator(task_id='DagTerminatedSuccesfully')
 
     
     #----------------- STEPS ------------------
@@ -172,13 +183,15 @@ with DAG("capstone_templated",
         init >> create_postgres >> download_gcs_file >> csv_to_database
     )
     (
-        csv_to_database >> create_movies_cluster  >> pyspark_movies_task >> delete_movies_cluster >> copy_to_staging_layer
+        csv_to_database >> create_movies_cluster  >> pyspark_movies_task >> copy_to_staging_layer >> delete_movies_cluster >> cluster_analytics
              
     )
     (
-        csv_to_database >> create_log_cluster >> pyspark_logs_task >> delete_logs_cluster >> copy_to_staging_layer
+        csv_to_database >> create_log_cluster >> pyspark_logs_task >> copy_to_staging_layer >> delete_logs_cluster  >> cluster_analytics
     )
-    
+    (
+        cluster_analytics >> analytics_job >> terminate
+    )
 
 '''
 
