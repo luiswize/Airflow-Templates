@@ -170,7 +170,7 @@ with DAG("CapstoneProject",
     cluster_analytics = DummyOperator(task_id='CreateClusterForAnalytics')
     
     ## Here is supposed to be the the deeper analytics job run. It is part of the next steps.
-    ## Meanwhile I run it In my local
+    ## Meanwhile I run it In my local https://github.com/luiswize/Milestone-Project/blob/main/analytics_jobs.ipynb
     analytics_job = DummyOperator(task_id='DataAnalysis')
     
     terminate = DummyOperator(task_id='DagTerminatedSuccesfully')
